@@ -4,7 +4,7 @@ import struct
 import datetime
 
 class DataPoint:
-	def __init__(self, data):
+	def __init__(self, data = None):
 		# Fields
 		self.date_str = None
 		self.time_str = None

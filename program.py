@@ -141,7 +141,8 @@ def process_file(arg):
 	print("gps data len: {}".format(len(gps_data)))
 
 	if is_mov:
-		print(gps_data[0])
+		for gd in gps_data:
+			print(str(gd))
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:

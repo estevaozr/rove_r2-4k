@@ -5,7 +5,8 @@
 
 import sys
 import struct
-import binascii
+
+from data_point import DataPoint
 
 def get_atom_info(data):
 	try:
@@ -73,9 +74,9 @@ def process_gps_atom(atom_pos, fh):
 		data_dec.append(b ^ 170) # 0xAA = 170
 
 	# Now we have plaintext data with the GPS and Accelerometer data
-	# TODO: Parse it in a good way
+	dp = DataPoint(data_dec)
 
-	return data_dec
+	return dp
 
 def parse_mov(fh):
 	# Returns if file is MOV, and GPS data objects if found
@@ -140,9 +141,7 @@ def process_file(arg):
 	print("gps data len: {}".format(len(gps_data)))
 
 	if is_mov:
-		with open("/tmp/aaaa.txt", "wb") as f:
-			for gd in gps_data:
-				f.write(gd)
+		print(gps_data[0])
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:

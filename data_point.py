@@ -1,3 +1,4 @@
+import io
 import gzip
 import time
 import struct
@@ -98,4 +99,38 @@ class DataPoint:
 
 	def __str__(self):
 		return str(self.__dict__)
+
+	@staticmethod
+	def compress_data_points(data_points):
+		if (not isinstance(data_points, list)) or (not isinstance(data_points[0], DataPoint)):
+			raise Exception("data_points is not a list of DataPoint")
+
+		# Store data as follows: 4 byte length, then data
+		data = bytearray()
+
+		for dp in data_points:
+			for _ in struct.pack("<I", len(dp.__raw_data)):
+				data.append(_)
+			for _ in dp.__raw_data:
+				data.append(_)
+
+		# Return compressed data
+		return gzip.compress(data)
+
+	@staticmethod
+	def decompress_data_points(compressed):
+		# Decompres data
+		data = gzip.decompress(compressed)
+
+		dps = list()
+
+		# Recover each data point
+		with io.BytesIO(data) as f:
+			while size_bytes := f.read(4):
+				size = struct.unpack("<I", size_bytes)[0]
+
+				raw_data = f.read(size)
+				dps.append(DataPoint(raw_data))
+
+		return dps
 

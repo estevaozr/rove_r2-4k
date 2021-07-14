@@ -141,8 +141,8 @@ def process_file(arg):
 	print("gps data len: {}".format(len(gps_data)))
 
 	if is_mov:
-		for gd in gps_data:
-			print(str(gd))
+		with open("/tmp/aaaa.bin", "wb") as f:
+			f.write(DataPoint.compress_data_points(gps_data))
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:

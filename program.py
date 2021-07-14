@@ -79,8 +79,9 @@ def process_gps_atom(atom_pos, fh):
 	return dp
 
 def parse_mov(fh):
-	# Returns if file is MOV, and GPS data objects if found
+	# Returns if file is a MOV+GPS, and GPS data objects if found
 	is_mov = False
+	gps_data_found = False
 	gps_data = list()
 
 	offset = 0
@@ -103,6 +104,7 @@ def parse_mov(fh):
 				sub_atom_size, sub_atom_type = get_atom_info(fh.read(8))
 
 				if sub_atom_type == "gps ":
+					gps_data_found = True
 					print("--> GPS chunk descriptor atom found! (offset: {})".format(sub_offset))
 					print("\tGPS chunk atom size: {}".format(sub_atom_size))
 
@@ -129,18 +131,18 @@ def parse_mov(fh):
 		offset += atom_size
 		fh.seek(offset, 0)
 
-	return is_mov, gps_data
+	return is_mov and gps_data_found, gps_data
 
 def process_file(arg):
 	print("--> Processing \"{}\" file...".format(arg))
 
 	with open(arg, "rb") as fh:
-		is_mov, gps_data = parse_mov(fh)
+		is_valid, gps_data = parse_mov(fh)
 
-	print("is_mov: {}".format(is_mov))
+	print("is_valid: {}".format(is_valid))
 	print("gps data len: {}".format(len(gps_data)))
 
-	if is_mov:
+	if is_valid:
 		with open("/tmp/aaaa.bin", "wb") as f:
 			f.write(DataPoint.compress_data_points(gps_data))
 

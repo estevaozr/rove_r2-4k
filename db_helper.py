@@ -30,6 +30,18 @@ class DbHelper:
 
 		return res.fetchall()
 
+	def __execute_many_sql(self, sql, args_list, commit=True):
+		if not args_list:
+			raise Exception("Need to pass args_list")
+
+		if (not isinstance(args_list, list)) and (not isinstance(args_list[0], tuple)):
+			raise Exception("Need to pass an args_list of list of tuples")
+
+		self.curs.executemany(sql, args_list)
+
+		if commit:
+			self.conn.commit()
+
 	def create_tables(self):
 		## Table definitions
 
@@ -45,10 +57,27 @@ class DbHelper:
 		);
 		"""
 
+		data_points_table = \
+		"""
+		CREATE TABLE IF NOT EXISTS "DataPoints" (
+			"Time"	REAL NOT NULL, -- Unix Time
+			"LicensePlate"	TEXT,
+			"Latitude"	REAL,
+			"Longitude"	REAL,
+			"Speed"	INTEGER NOT NULL,
+			"Accel1"	REAL NOT NULL,
+			"Accel2"	REAL NOT NULL,
+			"Accel3"	BLOB NOT NULL,
+			"FilesInfoId"	INTEGER NOT NULL,
+			FOREIGN KEY("FilesInfoId") REFERENCES "FilesInfo"("Id")
+		);
+		"""
+
 		# ----------------------------------------------------------------------
 
 		# Create all tables, commit only on last call
 		self.__execute_sql(files_info_table, commit=False)
+		self.__execute_sql(data_points_table, commit=False)
 		self.__execute_sql("", commit=True)
 
 	# --- FilesInfo Table Operations -------------------------------------------
@@ -109,4 +138,20 @@ class DbHelper:
 		"""
 
 		return self.__execute_sql(sql, (filename,))
+
+	# --- DataPoints Table Operations ------------------------------------------
+	def add_data_points(self, points):
+		"""
+		Store several data points at the same time.
+		'poits' is a list of tuples to be added
+		"""
+
+		sql = \
+		"""
+		INSERT INTO DataPoints
+		VALUES
+		(?, ?, ?, ?, ?, ?, ?, ?, ?)
+		"""
+
+		self.__execute_many_sql(sql, points)
 

@@ -97,6 +97,19 @@ class DataPoint:
 		self.accel3_str = self.__raw_data[183:187].decode()
 		self.accel3 = float(self.accel3_str) / 10
 
+	def get_db_tuple(self, fid):
+		return (
+			self.unix_time,
+			self.license_plate,
+			self.latitude,
+			self.longitude,
+			self.speed,
+			self.accel1,
+			self.accel2,
+			self.accel3,
+			fid
+		)
+
 	def __str__(self):
 		return str(self.__dict__)
 

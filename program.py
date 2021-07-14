@@ -148,9 +148,21 @@ def process_file(arg):
 	print("gps data len: {}".format(len(gps_data)))
 
 	if is_valid:
+		# Try to store file info
 		if db.add_files_info(filename, time.time(), DataPoint.compress_data_points(gps_data)):
 			print("--> Saved information for file \"{}\"".format(filename))
-			# TODO: Save processed GPS information
+
+			# Get FilesInfo.Id to store data for this file
+			fid = db.get_files_info_by_filename(filename)[0][0]
+
+			# Prepare data_point_list
+			db_data_points = list()
+			for dp in gps_data:
+				db_data_points.append(dp.get_db_tuple(fid))
+
+			# Store data points
+			db.add_data_points(db_data_points)
+
 		else:
 			print("--> File \"{}\" already was saved before, didn't update it".format(filename))
 

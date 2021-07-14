@@ -3,9 +3,12 @@
 # Note the MP4 part of this script is heavly inspired/copied from:
 #   https://sergei.nz/extracting-gps-data-from-viofo-a119-and-other-novatek-powered-cameras/
 
+import os
 import sys
+import time
 import struct
 
+from db_helper import DbHelper
 from data_point import DataPoint
 
 def get_atom_info(data):
@@ -134,7 +137,9 @@ def parse_mov(fh):
 	return is_mov and gps_data_found, gps_data
 
 def process_file(arg):
-	print("--> Processing \"{}\" file...".format(arg))
+	filename = os.path.basename(arg)
+
+	print("--> Processing \"{}\" file...".format(os.path.basename(filename)))
 
 	with open(arg, "rb") as fh:
 		is_valid, gps_data = parse_mov(fh)
@@ -143,10 +148,18 @@ def process_file(arg):
 	print("gps data len: {}".format(len(gps_data)))
 
 	if is_valid:
-		with open("/tmp/aaaa.bin", "wb") as f:
-			f.write(DataPoint.compress_data_points(gps_data))
+		if db.add_files_info(filename, time.time(), DataPoint.compress_data_points(gps_data)):
+			print("--> Saved information for file \"{}\"".format(filename))
+			# TODO: Save processed GPS information
+		else:
+			print("--> File \"{}\" already was saved before, didn't update it".format(filename))
+
+	print()
 
 if __name__ == "__main__":
+	global db
+	db = DbHelper()
+
 	if len(sys.argv) < 2:
 		print("Please call the script like follows:")
 		print("\t{} (dash cam file) [other dash cam files]".format(sys.argv[0]))

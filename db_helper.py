@@ -80,3 +80,33 @@ class DbHelper:
 
 		return True
 
+	def get_files_info_by_id(self, fid):
+		"""
+		Return everything from FilesInfo for a specific Id
+		"""
+
+		sql = \
+		"""
+		SELECT * FROM FilesInfo WHERE Id = ?
+		"""
+
+		res = self.__execute_sql(sql, (fid,))
+
+		if len(res) > 0:
+			return res[0]
+
+		return None
+
+	def get_files_info_by_filename(self, filename):
+		"""
+		Return everything from FilesInfo for a filename
+		Note: Adding % will allow matching more than one FilesInfo
+		"""
+
+		sql = \
+		"""
+		SELECT * FROM FilesInfo WHERE FileName LIKE ?
+		"""
+
+		return self.__execute_sql(sql, (filename,))
+

@@ -89,13 +89,13 @@ class DataPoint:
 		self.speed_str = self.__raw_data[59:67].decode()
 		self.speed = int(self.speed_str)
 
-		## Acelerometers
+		## Acelerometers, assuming that the "100" = "1g"
 		self.accel1_str = self.__raw_data[175:179].decode()
-		self.accel1 = float(self.accel1_str) / 10
+		self.accel1 = float(self.accel1_str) / 100
 		self.accel2_str = self.__raw_data[179:183].decode()
-		self.accel2 = float(self.accel2_str) / 10
+		self.accel2 = float(self.accel2_str) / 100
 		self.accel3_str = self.__raw_data[183:187].decode()
-		self.accel3 = float(self.accel3_str) / 10
+		self.accel3 = float(self.accel3_str) / 100
 
 	def get_db_tuple(self, fid):
 		return (

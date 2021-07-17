@@ -81,11 +81,53 @@ def process_gps_atom(atom_pos, fh):
 
 	return dp
 
-def parse_mov(fh):
-	# Returns if file is a MOV+GPS, and GPS data objects if found
-	is_mov = False
+def parse_moov_atom(fh, offset):
+	print("--> moov atom found! (offset: {})".format(offset))
+
 	gps_data_found = False
 	gps_data = list()
+
+	# Reread the moov atom information
+	fh.seek(offset, 0)
+	atom_size, atom_type = get_atom_info(fh.read(8))
+
+	# Process the atoms inside the moov atom
+	sub_offset = offset + 8
+
+	while sub_offset < (offset + atom_size):
+		sub_atom_size, sub_atom_type = get_atom_info(fh.read(8))
+
+		if sub_atom_type == "gps ":
+			gps_data_found = True
+			print("--> GPS chunk descriptor atom found! (offset: {})".format(sub_offset))
+			print("\tGPS chunk atom size: {}".format(sub_atom_size))
+
+			gps_offset = 16 + sub_offset # Skipping some headers...?
+			fh.seek(gps_offset, 0)
+
+			while gps_offset < (sub_offset + sub_atom_size):
+				gps_atom_pos, gps_atom_size = get_gps_atom_info(fh.read(8))
+				print("\tGPS atom pos: {} - GPS atom size: {}".format(gps_atom_pos, gps_atom_size))
+
+				gps_atom_data = process_gps_atom(gps_atom_pos, fh)
+				if gps_atom_data:
+					gps_data.append(gps_atom_data)
+
+				# Continue processing GPS atom
+				gps_offset += 8
+				fh.seek(gps_offset, 0)
+
+		# Continue processing subatom
+		sub_offset += sub_atom_size
+		fh.seek(sub_offset, 0)
+
+	# Return data that was found
+	return gps_data_found, gps_data
+
+def parse_mov(fh):
+	# Returns if file is a MOV+GPS, and GPS data objects if found
+	is_valid = False
+	gps_data = None
 
 	offset = 0
 
@@ -103,43 +145,13 @@ def parse_mov(fh):
 
 		# Check if Atom is moov
 		if atom_type == "moov":
-			print("--> moov atom found! (offset: {})".format(offset))
-			is_mov = True
-
-			sub_offset = offset + 8
-
-			while sub_offset < (offset + atom_size):
-				sub_atom_size, sub_atom_type = get_atom_info(fh.read(8))
-
-				if sub_atom_type == "gps ":
-					gps_data_found = True
-					print("--> GPS chunk descriptor atom found! (offset: {})".format(sub_offset))
-					print("\tGPS chunk atom size: {}".format(sub_atom_size))
-
-					gps_offset = 16 + sub_offset # Skipping some headers...?
-					fh.seek(gps_offset, 0)
-
-					while gps_offset < (sub_offset + sub_atom_size):
-						gps_atom_pos, gps_atom_size = get_gps_atom_info(fh.read(8))
-						print("\tGPS atom pos: {} - GPS atom size: {}".format(gps_atom_pos, gps_atom_size))
-
-						gps_atom_data = process_gps_atom(gps_atom_pos, fh)
-						if gps_atom_data:
-							gps_data.append(gps_atom_data)
-
-						# Continue processing GPS atom
-						gps_offset += 8
-						fh.seek(gps_offset, 0)
-
-				# Continue processing subatom
-				sub_offset += sub_atom_size
-				fh.seek(sub_offset, 0)
+			is_valid, gps_data = parse_moov_atom(fh, offset)
 
 		# Continue processing file
 		offset += atom_size
 		fh.seek(offset, 0)
 
-	return is_mov and gps_data_found, gps_data
+	return is_valid, gps_data
 
 def process_file(arg):
 	filename = os.path.basename(arg)

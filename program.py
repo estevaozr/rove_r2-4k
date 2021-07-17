@@ -15,7 +15,7 @@ def get_atom_info(data):
 	try:
 		atom_size, atom_type = struct.unpack(">I4s", data)
 	except struct.error:
-		return 0, ""
+		return -1, "(Unpack Error)"
 	except Exception as e:
 		print("WTF!")
 		print(data)
@@ -93,7 +93,12 @@ def parse_mov(fh):
 		# Get atom information
 		atom_size, atom_type = get_atom_info(fh.read(8))
 
-		if atom_size <= 0:
+		if atom_size < 8 and atom_size >= 0:
+			print("--> WTF, atom size is too small for a correctly formed file! ({} size)".format(atom_size))
+			break
+
+		if atom_size < 0:
+			print("--> End of File")
 			break
 
 		# Check if Atom is moov

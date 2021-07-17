@@ -5,6 +5,7 @@
 
 import os
 import sys
+import mmap
 import time
 import struct
 
@@ -124,6 +125,29 @@ def parse_moov_atom(fh, offset):
 	# Return data that was found
 	return gps_data_found, gps_data
 
+def try_finding_moov_atom(fh):
+	print("----> Will try searching the \"moov\" atom through the file...")
+
+	offset = 0
+	fh.seek(offset, 0)
+
+	m = mmap.mmap(fh.fileno(), 0, prot=mmap.PROT_READ)
+
+	moov_candidates = list()
+
+	while offset >= 0:
+		offset = m.find("moov".encode(), offset)
+
+		if offset > 0:
+			if offset > 0:
+				print("----> found a \"moov\" string in offset {} on the file. Will try parsing it...".format(offset))
+				moov_candidates.append(offset - 4)
+				offset += 4
+			else:
+				print("----> could not find any other \"moov\" string on the file")
+
+	return moov_candidates
+
 def parse_mov(fh):
 	# Returns if file is a MOV+GPS, and GPS data objects if found
 	is_valid = False
@@ -136,8 +160,24 @@ def parse_mov(fh):
 		atom_size, atom_type = get_atom_info(fh.read(8))
 
 		if atom_size < 8 and atom_size >= 0:
-			print("--> WTF, atom size is too small for a correctly formed file! ({} size)".format(atom_size))
-			break
+			print("--> WTF, atom size is too small for a correctly formed file! (atom: \"{}\" - size: {})".format(atom_type, atom_size))
+			candidates = try_finding_moov_atom(fh)
+
+			if len(candidates) == 0:
+				break
+
+			# We will try searching GPS data in each of these moov candidates
+			for cand in candidates:
+				print("----> Trying moov candidate on offset {}...".format(cand))
+
+				is_valid, gps_data = parse_moov_atom(fh, cand)
+
+				if is_valid and len(gps_data) > 0:
+					print("----> Found something. Will assume that this is the correct moov atom")
+					return is_valid, gps_data
+
+			# We could not find the correct moov atom. Abort
+			return False, None
 
 		if atom_size < 0:
 			print("--> End of File")
@@ -146,6 +186,7 @@ def parse_mov(fh):
 		# Check if Atom is moov
 		if atom_type == "moov":
 			is_valid, gps_data = parse_moov_atom(fh, offset)
+			break
 
 		# Continue processing file
 		offset += atom_size
@@ -162,9 +203,10 @@ def process_file(arg):
 		is_valid, gps_data = parse_mov(fh)
 
 	print("is_valid: {}".format(is_valid))
-	print("gps data len: {}".format(len(gps_data)))
 
 	if is_valid:
+		print("gps data len: {}".format(len(gps_data)))
+
 		# Try to store file info
 		if db.add_files_info(filename, time.time(), DataPoint.compress_data_points(gps_data)):
 			print("--> Saved information for file \"{}\"".format(filename))

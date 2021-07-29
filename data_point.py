@@ -85,9 +85,13 @@ class DataPoint:
 		else:
 			self.longitude = None
 
-		## Speed
+		## Speed, only has valid data if the GPS has a fix. Which means
+		#  we only capture it if the Latitude and Longitude are not null
 		self.speed_str = self.__raw_data[59:67].decode()
-		self.speed = int(self.speed_str)
+		if self.latitude is not None and self.longitude is not None:
+			self.speed = int(self.speed_str)
+		else:
+			self.speed = None
 
 		## Acelerometers, assuming that the "100" = "1g"
 		self.accel1_str = self.__raw_data[175:179].decode()

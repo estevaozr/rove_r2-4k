@@ -60,11 +60,11 @@ class DbHelper:
 		data_points_table = \
 		"""
 		CREATE TABLE IF NOT EXISTS "DataPoints" (
-			"Time"	REAL NOT NULL, -- Unix Time
+			"Time"	INTEGER NOT NULL, -- Unix Time
 			"LicensePlate"	TEXT,
 			"Latitude"	REAL,
 			"Longitude"	REAL,
-			"Speed"	INTEGER NOT NULL,
+			"Speed"	INTEGER,
 			"Accel1"	REAL NOT NULL,
 			"Accel2"	REAL NOT NULL,
 			"Accel3"	BLOB NOT NULL,

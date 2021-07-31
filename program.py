@@ -197,6 +197,13 @@ def parse_mov(fh):
 def process_file(arg):
 	filename = os.path.basename(arg)
 
+	files_info = db.get_files_info_by_filename(filename)
+
+	if files_info and len(files_info) > 0:
+		print("--> File \"{}\" already exists on the DB, will not process it again".format(filename))
+		print()
+		return
+
 	print("--> Processing \"{}\" file...".format(os.path.basename(filename)))
 
 	with open(arg, "rb") as fh:

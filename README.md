@@ -1,5 +1,5 @@
 # Rove R2-4k Dashcam metadata extractor
-This is a Python3 script that can extract the metadata (Date/Time, License Plate, Speed, GPS and Accelerometer) data from the video files that the [Rove R2-4k](https://www.rovedashcam.com/products/rove-r2-4k-car-dashcam) dashcamera.
+This is a Python3 script that can extract the metadata (Date/Time, License Plate, Speed, GPS and Accelerometer) data from the video files that the [Rove R2-4k](https://www.rovedashcam.com/products/rove-r2-4k-car-dashcam) dashcamera creates.
 
 It has been tested with the current latest [firmware](https://www.rovedashcam.com/pages/update-firmware-rove-r2-4k-dash-cam) of the camera: `ROVE R2-4K 07-07-2020 V3`
 
@@ -104,5 +104,5 @@ The Rove R2-4k camera correctly formats 32GB+ cards as *exFAT* as recommended, b
 Final note: The creator of the repository is using a 64GB Samsung card formated with FAT32, recording video files at the 4k@24fps and 3 minutes duration with no issues as of now. The *atom size* issue is not happening with this setup.
 
 # Acknowledgments
-* I'd like to thank **Sergei's Stuff and Things** blog write-up, which helped me to understand how to parse the MP4 container. The origianal page that was references follows:
+* I'd like to thank **Sergei's Stuff and Things** blog write-up, which helped me to understand how to parse the MP4 container. The origianal page that was referenced follows:
   * https://sergei.nz/extracting-gps-data-from-viofo-a119-and-other-novatek-powered-cameras/

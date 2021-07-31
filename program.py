@@ -1,8 +1,5 @@
 #!/bin/env python3
 
-# Note the MP4 part of this script is heavly inspired/copied from:
-#   https://sergei.nz/extracting-gps-data-from-viofo-a119-and-other-novatek-powered-cameras/
-
 import os
 import sys
 import mmap
@@ -18,7 +15,7 @@ def get_atom_info(data):
 	except struct.error:
 		return -1, "(Unpack Error)"
 	except Exception as e:
-		print("WTF!")
+		print("Error!")
 		print(data)
 		print(str(e))
 
@@ -27,7 +24,7 @@ def get_atom_info(data):
 	except UnicodeDecodeError:
 		a_t = "UNKNOWN"
 	except Exception as e:
-		print("WTF2!")
+		print("Error2!")
 		print(atom_type)
 		print(str(e))
 		a_t = "UNKNOWN2"
@@ -160,7 +157,7 @@ def parse_mov(fh):
 		atom_size, atom_type = get_atom_info(fh.read(8))
 
 		if atom_size < 8 and atom_size >= 0:
-			print("--> WTF, atom size is too small for a correctly formed file! (atom: \"{}\" - size: {})".format(atom_type, atom_size))
+			print("--> Atom size is too small for a correctly formed file! (atom: \"{}\" - size: {})".format(atom_type, atom_size))
 			candidates = try_finding_moov_atom(fh)
 
 			if len(candidates) == 0:

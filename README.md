@@ -83,9 +83,25 @@ The SQLite database only has 2 tables; the following is more details on what eac
   * This is a point in the front of the U.S.A. White House
 
 # Quirks
-These are the quirks that were noticed while writing this program
+These are the quirks that were noticed while writing this script.
 
-TODO: Writem them
+## DataPoints Time and GPS clock desync
+The camera sincronizes its time with the GPS system. If the camera spends time without receiving GPS data (like over a weekend) its clock will diverge from the GPS system time.
+
+Because of this when the dashcam gets a GPS fix and update its clock the time being stamped in the video and on the metadata will change to match the GPS time. This means that the DataPoints.Time **can** shift forwards and/or backwards depending on how much the camera's clock drifted.
+
+## MP4 Atom structure inconsistency when using 32GB+ cards with exFAT
+It was noticed that when using an SDCard formatted with *exFAT* some of the MP4 container *atoms* would have inconsistent sizes of 1 byte.
+
+Files that are affected by this issue will cause the script to print a message like `--> Atom size is too small for a correctly formed file!`. This will cause the script to have to search on all of the file for the *moov* atom instead of traversing the MP4 atom structure, which will take longer and cause more IO on the SD card.
+
+That said it will find all *moov* strings on the file and try to parse it to find the metadata location, so it will be able to get it but it will take longer and use more CPU to be able to do so.
+
+Since the [SDCard Association](https://www.sdcard.org/developers/sd-standard-overview/capacity-sd-sdhc-sdxc-sduc/) recommends that any card with more than 32GB to be formatted with exFAT this is expected to happen with any card that is larger than 32GB.
+
+The Rove R2-4k camera correctly formats 32GB+ cards as *exFAT* as recommended, but to avoid this issue one can use external tools to format the card in *FAT32* which [can support cards up to 2TB](https://en.wikipedia.org/wiki/File_Allocation_Table#Maximal_sizes). One just have to re-create the folder structure and files that the camera normally creates when it formats the card natively in order to make it not try to re-format the card after that.
+
+Final note: The creator of the repository is using a 64GB Samsung card formated with FAT32, recording video files at the 4k@24fps and 3 minutes duration with no issues as of now. The *atom size* issue is not happening with this setup.
 
 # Acknowledgments
 * I'd like to thank **Sergei's Stuff and Things** blog write-up, which helped me to understand how to parse the MP4 container. The origianal page that was references follows:

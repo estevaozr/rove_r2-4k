@@ -67,7 +67,7 @@ class DbHelper:
 			"Speed"	INTEGER,
 			"Accel1"	REAL NOT NULL,
 			"Accel2"	REAL NOT NULL,
-			"Accel3"	BLOB NOT NULL,
+			"Accel3"	REAL NOT NULL,
 			"FilesInfoId"	INTEGER NOT NULL,
 			FOREIGN KEY("FilesInfoId") REFERENCES "FilesInfo"("Id")
 		);

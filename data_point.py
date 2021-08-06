@@ -95,11 +95,22 @@ class DataPoint:
 
 		## Acelerometers, assuming that the "100" = "1g"
 		self.accel1_str = self.__raw_data[175:179].decode()
-		self.accel1 = float(self.accel1_str) / 100
+		try:
+			self.accel1 = float(self.accel1_str) / 100
+		except Exception:
+			self.accel1 = None
+
 		self.accel2_str = self.__raw_data[179:183].decode()
-		self.accel2 = float(self.accel2_str) / 100
+		try:
+			self.accel2 = float(self.accel2_str) / 100
+		except Exception:
+			self.accel2 = None
+
 		self.accel3_str = self.__raw_data[183:187].decode()
-		self.accel3 = float(self.accel3_str) / 100
+		try:
+			self.accel3 = float(self.accel3_str) / 100
+		except Exception:
+			self.accel3 = None
 
 	def get_db_tuple(self, fid):
 		return (

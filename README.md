@@ -39,9 +39,9 @@ CREATE TABLE IF NOT EXISTS "DataPoints" (
     "Latitude"	REAL,
     "Longitude"	REAL,
     "Speed"	INTEGER,
-    "Accel1"	REAL NOT NULL,
-    "Accel2"	REAL NOT NULL,
-    "Accel3"	REAL NOT NULL,
+    "Accel1"	REAL,
+    "Accel2"	REAL,
+    "Accel3"	REAL,
     "FilesInfoId"	INTEGER NOT NULL,
 FOREIGN KEY("FilesInfoId") REFERENCES "FilesInfo"("Id")
 );

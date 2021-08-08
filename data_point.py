@@ -130,8 +130,14 @@ class DataPoint:
 
 	@staticmethod
 	def compress_data_points(data_points):
-		if (not isinstance(data_points, list)) or (not isinstance(data_points[0], DataPoint)):
+		if (not isinstance(data_points, list)):
 			raise Exception("data_points is not a list of DataPoint")
+
+		if len(data_points) == 0:
+			raise Exception("data_points List is empty")
+
+		if not isinstance(data_points[0], DataPoint):
+			raise Exception("List elements is not a DataPoint")
 
 		# Store data as follows: 4 byte length, then data
 		data = bytearray()
